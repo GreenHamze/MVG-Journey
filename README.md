@@ -1,4 +1,3 @@
-README.md](https://github.com/user-attachments/files/27057051/README.md)
 # MVG Cinema Journey Planner — CPEE-Orchestrated Activity Planning
 
 A QR-code-driven journey planner where a [CPEE](https://cpee.org) process orchestrates the decision flow, PHP backend scripts proxy Google Maps APIs and relay QR callbacks, and static HTML pages provide the visualization. Users interact entirely through QR codes scanned with their phone — the UI displays on a TV or large monitor, and every choice is a QR scan.
