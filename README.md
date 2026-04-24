@@ -1,11 +1,9 @@
-[README.md](https://github.com/user-attachments/files/27057051/README.md)
+<img width="2235" height="1317" alt="BeforeMovieOptions" src="https://github.com/user-attachments/assets/02119aef-57ef-4d5e-ae09-2cf1be30edf3" />[README.md](https://github.com/user-attachments/files/27057051/README.md)
 # MVG Cinema Journey Planner — CPEE-Orchestrated Activity Planning
 
 A QR-code-driven journey planner where a [CPEE](https://cpee.org) process orchestrates the decision flow, PHP backend scripts proxy Google Maps APIs and relay QR callbacks, and static HTML pages provide the visualization. Users interact entirely through QR codes scanned with their phone — the UI displays on a TV or large monitor, and every choice is a QR scan.
 
 The system picks up after a colleague's (Alex / ge82bob) cinema and movie selection flow. Alex's system handles movie browsing and cinema selection; this system takes over from there, guiding the user through optional pre-movie activities (supermarkets, restaurants), post-movie activities (bars), and finally rendering a complete MVG transit route with real-time directions.
-
-Built as a TUM CPEE Praktikum project.
 
 ---
 
@@ -13,49 +11,57 @@ Built as a TUM CPEE Praktikum project.
 
 ### 1. Select showtime — scan to pick your time
 
-![Select Showtime](screenshots/01_select_showtime.png)
+<img width="2235" height="1317" alt="SelectShowtime" src="https://github.com/user-attachments/assets/702df767-3126-41c1-839a-90480d305e54" />
+
 
 The system reads Alex's `selection.json` and queries his `movies.db` to pull the movie title, cinema, and available showtimes. Each showtime gets its own QR code. Scanning one sends the time string (e.g., `"16:45"`) back to CPEE, which stores it and advances.
 
 ### 2. Before the movie — snack, meal, or skip
 
-![Before Movie Options](screenshots/02_before_movie.png)
+<img width="2235" height="1317" alt="BeforeMovieOptions" src="https://github.com/user-attachments/assets/23cdee2e-73d8-4061-ba8c-9a3329e5fe6b" />
+
 
 Three QR codes. "Grab a Snack" sends `"supermarket"`, "Grab a Meal" sends `"restaurant"`, "Skip" sends `"skip"`. CPEE stores the choice in `data.before_choice` and branches accordingly.
 
 ### 3. Pick a supermarket
 
-![Nearby Supermarkets](screenshots/03_nearby_supermarkets.png)
+<img width="2543" height="1313" alt="SupermarketOptions" src="https://github.com/user-attachments/assets/8dd8942e-96f7-4cfc-9fbc-2b8a5078a5e8" />
+
 
 The Google Places API (New) is queried for supermarkets within 500m of the cinema. Each result is filtered by opening hours — only places open 1.5 hours before showtime are marked "Open." Results are sorted by open/closed status, then by rating. Each place's QR code encodes a JSON payload with name, coordinates, and address so the final route page can plot directions without a second geocoding call.
 
 ### 4. Also grab a meal?
 
-![Also Grab a Meal](screenshots/04_also_grab_meal.png)
+<img width="2543" height="1313" alt="MealBeforeMovie" src="https://github.com/user-attachments/assets/4d59a357-0aa4-4563-898b-0d97f5575a66" />
+
 
 After picking a supermarket, the system offers the complementary activity. The selected place name is shown as confirmation (parsed from the JSON payload). Two QR codes: one for "Grab a Meal" (sends `"restaurant"`), one for "Skip" (sends `"skip"`). If the user had picked a restaurant first, this screen would offer supermarkets instead.
 
 ### 5. Pick a restaurant
 
-![Nearby Restaurants](screenshots/05_nearby_restaurants.png)
+<img width="2543" height="1313" alt="RestaurantOptions" src="https://github.com/user-attachments/assets/d14765d5-f6f2-4289-88db-030c0ff4e54e" />
+
 
 Same `places-list.html` page, parameterized with `type=restaurant`. The same filtering and sorting logic applies. Closed restaurants are greyed out but still visible.
 
 ### 6. After the movie — drinks or home
 
-![After Movie Options](screenshots/06_after_movie.png)
+<img width="2543" height="1313" alt="AfterMovieOptions" src="https://github.com/user-attachments/assets/9a1f401d-73d2-4bc4-b53b-94b40dd524a8" />
+
 
 The estimated movie end time is calculated from showtime + duration. Two QR codes: "Grab a Drink" sends `"bar"`, "Head Home" sends `"home"`.
 
 ### 7. Pick a bar
 
-![Nearby Bars](screenshots/07_nearby_bars.png)
+<img width="2543" height="1313" alt="NearbyBars" src="https://github.com/user-attachments/assets/2d79c394-1723-41f2-9a1b-09ade72d5ced" />
+
 
 Bars are filtered by whether they're open *after* the movie ends (showtime + duration), not before. The same `places-list.html` page handles this by checking the `type=bar` parameter and adjusting the time check.
 
 ### 8. Your complete journey
 
-![Final Journey](screenshots/08_final_route.png)
+<img width="2543" height="1313" alt="FinalJourney" src="https://github.com/user-attachments/assets/11b3861a-0ccb-4202-9dd3-8612f2d60b59" />
+
 
 The final screen renders a timeline of every stop with real-time MVG transit data from the Google Directions API. Each leg shows the U-Bahn/S-Bahn line, direction, travel time, and number of stops. Walking segments are shown where transit isn't available. A summary box shows total stops, transit legs, and estimated total time.
 
@@ -199,7 +205,8 @@ Alex's system (ge82bob) handles cinema browsing and movie selection. When the us
 
 ### Process graph from the CPEE cockpit
 
-![CPEE Process Graph](screenshots/09_cpee_process.png)
+<img width="546" height="1140" alt="ProcessGraph" src="https://github.com/user-attachments/assets/81bc46c8-2689-4867-baab-6eaf56fcbbc1" />
+
 
 The left column is the main flow — Init, Select Showtime, Fetch Movie Data, Before Options, then the exclusive gateways branching on supermarket/restaurant/skip. The middle section handles the "also" options (offering the complementary activity). After the branches merge, After Options and the bar/home decision follow. Final Route sits at the bottom of Branch 1. The right column (with the clock icon and loop) is Branch 2, the inactivity heartbeat.
 
@@ -374,11 +381,3 @@ CPEE URL expressions (the `!"..."` syntax) do not support `encodeURIComponent()`
 
 **CPEE** — Import the BPMN file from `cpee/` into the CPEE cockpit. Configure the `frames_display` endpoint to point to `https-put://cpee.org/out/frames/`. Configure `powernap` to point to `https-post://cpee.org/services/powernap.php`.
 
----
-
-## Authors
-
-- **Hamze Alzamkan** (ga53muj) — Activity planning, route generation, CPEE orchestration
-- **Alex** (ge82bob) — Cinema browsing, movie selection, showtime database
-
-TUM CPEE Practical Course, Winter Semester 2025
