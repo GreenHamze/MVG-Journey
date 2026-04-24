@@ -1,4 +1,4 @@
-# MVG Cinema Journey Planner
+<img width="2235" height="1317" alt="SelectShowtime" src="https://github.com/user-attachments/assets/ffa1e69d-c868-43c1-a9f4-27afed4d121f" /># MVG Cinema Journey Planner
 
 A QR-code-only journey planning system for Munich movie-goers, built as part of the TUM CPEE Practical Course (Winter Semester 2025). The application is displayed on a TV screen and users interact exclusively by scanning QR codes with their phones — no tapping, no typing.
 
@@ -16,7 +16,8 @@ The complete flow walks the user through their evening, screen by screen. Each s
 
 The system reads Alex's movie selection and presents available showtimes. The user scans the QR code for their preferred time.
 
-![Select Showtime](screenshots/01_select_showtime.png)
+<img width="2235" height="1317" alt="SelectShowtime" src="https://github.com/user-attachments/assets/f5bbb87b-0a17-4262-b9f7-b785eef76dd7" />
+
 
 *CPEE Block: `Select Showtime` — reads from Alex's `selection.json` and `movies.db`, displays available times.*
 
@@ -24,7 +25,8 @@ The system reads Alex's movie selection and presents available showtimes. The us
 
 The user chooses what to do before the movie: grab snacks from a supermarket, eat at a restaurant, or skip straight to the cinema.
 
-![Before Movie Options](screenshots/02_before_movie.png)
+<img width="2235" height="1317" alt="BeforeMovieOptions" src="https://github.com/user-attachments/assets/f829d75e-f549-43fe-8f7c-575ec964402b" />
+
 
 *CPEE Block: `Before Options` — waits for QR scan, stores choice in `data.before_choice`.*
 
@@ -32,7 +34,8 @@ The user chooses what to do before the movie: grab snacks from a supermarket, ea
 
 If the user chose "Grab a Snack," the system queries the Google Places API for nearby supermarkets, filters by opening hours (must be open 1.5 hours before the movie), and displays them sorted by rating. Each place gets its own QR code.
 
-![Nearby Supermarkets](screenshots/03_nearby_supermarkets.png)
+<img width="2543" height="1313" alt="SupermarketOptions" src="https://github.com/user-attachments/assets/8607d739-de3a-4524-9eaa-15781fe880bb" />
+
 
 *CPEE Block: `Pick Supermarket First` — sends JSON with place name, coordinates, and address back to CPEE.*
 
@@ -40,7 +43,8 @@ If the user chose "Grab a Snack," the system queries the Google Places API for n
 
 After picking a supermarket, the system asks if the user also wants to eat. The selected place name is shown as confirmation.
 
-![Also Grab a Meal](screenshots/04_also_grab_meal.png)
+<img width="2543" height="1313" alt="MealBeforeMovie" src="https://github.com/user-attachments/assets/13948864-73f0-4dd6-89fd-c9b291e17426" />
+
 
 *CPEE Block: `Also Options After Supermarket` — offers the complementary activity (restaurant if they picked supermarket, or vice versa).*
 
@@ -48,7 +52,8 @@ After picking a supermarket, the system asks if the user also wants to eat. The 
 
 If the user wants a meal too, nearby restaurants are shown with the same filtering and rating logic.
 
-![Nearby Restaurants](screenshots/05_nearby_restaurants.png)
+<img width="2543" height="1313" alt="RestaurantOptions" src="https://github.com/user-attachments/assets/84407b4e-ce2e-465a-a564-d797c408f0f1" />
+
 
 *CPEE Block: `Pick Restaurant Second` — same places-list page, parameterized with `type=restaurant`.*
 
@@ -56,7 +61,8 @@ If the user wants a meal too, nearby restaurants are shown with the same filteri
 
 The user decides what to do after the film: grab drinks at a bar, or head home.
 
-![After Movie Options](screenshots/06_after_movie.png)
+<img width="2543" height="1313" alt="AfterMovieOptions" src="https://github.com/user-attachments/assets/51d11389-c28c-451f-ad2a-09938b5950d8" />
+
 
 *CPEE Block: `After Options` — waits for QR scan, stores choice in `data.after_choice`.*
 
@@ -64,7 +70,8 @@ The user decides what to do after the film: grab drinks at a bar, or head home.
 
 If the user chose drinks, nearby bars are shown. Opening hours are checked against the estimated movie end time (showtime + duration).
 
-![Nearby Bars](screenshots/07_nearby_bars.png)
+<img width="2543" height="1313" alt="NearbyBars" src="https://github.com/user-attachments/assets/b583fcce-6e39-4253-a066-5eba00aee15e" />
+
 
 *CPEE Block: `Pick Bar` — filters bars open after the movie ends.*
 
@@ -72,7 +79,8 @@ If the user chose drinks, nearby bars are shown. Opening hours are checked again
 
 The final screen shows the complete evening plan as a timeline with real-time MVG transit information from the Google Directions API: U-Bahn lines, travel times, number of stops, and walking segments.
 
-![Final Journey](screenshots/08_final_route.png)
+<img width="2543" height="1313" alt="FinalJourney" src="https://github.com/user-attachments/assets/3578bd70-a181-4baf-8893-475f307aa456" />
+
 
 *CPEE Block: `Final Route` — display-only page, calls Google Directions API for each leg of the journey.*
 
@@ -82,7 +90,8 @@ The final screen shows the complete evening plan as a timeline with real-time MV
 
 The workflow is orchestrated by the CPEE (Cloud Process Execution Engine). Below is the process graph from the CPEE cockpit.
 
-![CPEE Process Graph](screenshots/09_cpee_process.png)
+<img width="546" height="1140" alt="ProcessGraph" src="https://github.com/user-attachments/assets/44c4ad3c-1682-4e08-ab1e-c68bd59d1e3e" />
+
 
 ### Process Structure
 
@@ -307,11 +316,3 @@ Note: QR callback functionality requires a running CPEE instance. Pages can be p
 - **Cache Busting**: Append `?v=N` or `&v=N` to page URLs in CPEE when deploying updates.
 - **Opening Hours**: Before-movie places are checked at `movie_time - 1.5h`; after-movie bars at `movie_time + duration`.
 
----
-
-## Authors
-
-- **Hamze Alzamkan** (ga53muj) — Activity planning, route generation, CPEE orchestration
-- **Alex** (ge82bob) — Cinema browsing, movie selection, showtime database
-
-TUM CPEE Practical Course, Winter Semester 2025
