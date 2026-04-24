@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-$API_KEY = 'AIzaSyBwF_EWset30orJ1XQcPPQJ4_9-HST2tIM';
+$API_KEY = 'YOUR_API_KEY_HERE';
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
