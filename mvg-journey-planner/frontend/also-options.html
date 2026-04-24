@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anything Else?</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .selected-info {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid rgba(46, 204, 113, 0.4);
+            border-radius: 16px;
+            padding: 25px 40px;
+            margin-bottom: 40px;
+            display: inline-block;
+        }
+        
+        .selected-label {
+            font-size: 1.1rem;
+            color: #2ecc71;
+            margin-bottom: 8px;
+        }
+        
+        .selected-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px;
+            margin-top: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .option-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #3498db;
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .option-card.meal { border-color: rgba(241, 196, 15, 0.3); }
+        .option-card.meal:hover { border-color: #f1c40f; background: rgba(241,196,15,0.1); }
+        
+        .option-card.snack { border-color: rgba(46, 204, 113, 0.3); }
+        .option-card.snack:hover { border-color: #2ecc71; background: rgba(46,204,113,0.1); }
+        
+        .option-card.skip { border-color: rgba(149, 165, 166, 0.3); }
+        .option-card.skip:hover { border-color: #95a5a6; background: rgba(149,165,166,0.1); }
+        
+        .option-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .option-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .option-desc {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 25px;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        
+        .scan-instruction {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #888;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title" id="pageTitle">🛒 Anything Else?</h1>
+            <p class="subtitle" id="pageSubtitle">Would you also like to do something else?</p>
+        </div>
+        
+        <div class="selected-info">
+            <div class="selected-label">✓ You selected</div>
+            <div class="selected-name" id="selectedName">Loading...</div>
+        </div>
+        
+        <div class="options-grid" id="optionsGrid">
+            <!-- Options will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        const SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        const CALLBACK = window.name || "";
+        
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const previousChoice = params.get('previous') || 'supermarket';
+        const movieTime = params.get('time') || '20:00';
+        
+        // Parse place parameter (could be JSON or plain string)
+        var rawPlace = params.get('place') || '';
+        var displayName = 'Selected Place';
+        if (rawPlace) {
+            var decoded = decodeURIComponent(rawPlace);
+            try {
+                var parsed = JSON.parse(decoded);
+                displayName = parsed.name || decoded;
+            } catch (e) {
+                displayName = decoded;
+            }
+        }
+        document.getElementById('selectedName').textContent = displayName;
+        
+        // Configure based on previous choice
+        let options = [];
+        
+        if (previousChoice === 'supermarket') {
+            document.getElementById('pageTitle').textContent = '🍽️ Also Grab a Meal?';
+            document.getElementById('pageSubtitle').textContent = 'Would you like to eat before the movie?';
+            options = [
+                { id: 'qr-meal', value: 'restaurant', icon: '🍽️', title: 'Grab a Meal', desc: 'Find restaurants near the cinema', cardClass: 'meal' },
+                { id: 'qr-skip', value: 'skip', icon: '⏭️', title: 'Skip', desc: 'Continue to after-movie options', cardClass: 'skip' }
+            ];
+        } else if (previousChoice === 'restaurant') {
+            document.getElementById('pageTitle').textContent = '🛒 Also Grab a Snack?';
+            document.getElementById('pageSubtitle').textContent = 'Would you like snacks for the movie?';
+            options = [
+                { id: 'qr-snack', value: 'supermarket', icon: '🛒', title: 'Grab a Snack', desc: 'Find supermarkets for drinks & snacks', cardClass: 'snack' },
+                { id: 'qr-skip', value: 'skip', icon: '⏭️', title: 'Skip', desc: 'Continue to after-movie options', cardClass: 'skip' }
+            ];
+        }
+        
+        // Generate option cards
+        const grid = document.getElementById('optionsGrid');
+        
+        options.forEach(opt => {
+            const card = document.createElement('div');
+            card.className = `option-card ${opt.cardClass}`;
+            card.innerHTML = `
+                <div class="option-icon">${opt.icon}</div>
+                <div class="option-title">${opt.title}</div>
+                <div class="option-desc">${opt.desc}</div>
+                <div class="qr-container">
+                    <div id="${opt.id}"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            `;
+            grid.appendChild(card);
+            
+            // Generate QR code
+            const qrData = SEND_URL + "?info=" + encodeURIComponent(opt.value) + "&cb=" + encodeURIComponent(CALLBACK);
+            new QRCode(document.getElementById(opt.id), {
+                text: qrData,
+                width: 300,
+                height: 300,
+                colorDark: "#1a1a2e",
+                colorLight: "#ffffff"
+            });
+        });
+    </script>
+</body>
+</html>

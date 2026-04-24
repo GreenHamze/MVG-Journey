@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>After the Movie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px;
+            margin-top: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .option-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #3498db;
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .option-card.bar { border-color: rgba(155, 89, 182, 0.3); }
+        .option-card.bar:hover { border-color: #9b59b6; background: rgba(155,89,182,0.1); }
+        
+        .option-card.home { border-color: rgba(46, 204, 113, 0.3); }
+        .option-card.home:hover { border-color: #2ecc71; background: rgba(46,204,113,0.1); }
+        
+        .option-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .option-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .option-desc {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 25px;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        
+        .scan-instruction {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #888;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎬 After the Movie</h1>
+            <p class="subtitle">What would you like to do after the show?</p>
+        </div>
+        
+        <div class="options-grid">
+            <div class="option-card bar">
+                <div class="option-icon">🍺</div>
+                <div class="option-title">Grab a Drink</div>
+                <div class="option-desc">Find bars near the cinema</div>
+                <div class="qr-container">
+                    <div id="qr-bar"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            </div>
+            
+            <div class="option-card home">
+                <div class="option-icon">🏠</div>
+                <div class="option-title">Head Home</div>
+                <div class="option-desc">End your journey here</div>
+                <div class="qr-container">
+                    <div id="qr-home"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        const CALLBACK = window.name || "";
+        
+        const options = [
+            { id: 'qr-bar', value: 'bar' },
+            { id: 'qr-home', value: 'home' }
+        ];
+        
+        options.forEach(opt => {
+            const qrData = SEND_URL + "?info=" + encodeURIComponent(opt.value) + "&cb=" + encodeURIComponent(CALLBACK);
+            new QRCode(document.getElementById(opt.id), {
+                text: qrData,
+                width: 300,
+                height: 300,
+                colorDark: "#1a1a2e",
+                colorLight: "#ffffff"
+            });
+        });
+    </script>
+</body>
+</html>

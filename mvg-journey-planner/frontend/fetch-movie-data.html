@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading Movie Data</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .message {
+            font-size: 1.5rem;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .submessage {
+            font-size: 1rem;
+            color: #888;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .error p {
+            color: #888;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            <div class="spinner"></div>
+            <div class="message">Loading movie data...</div>
+            <div class="submessage">Please wait</div>
+        </div>
+    </div>
+
+    <script>
+        var API_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/get-selection.php";
+        var SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        var CALLBACK = window.name || "";
+        
+        fetchAndSubmit();
+        
+        async function fetchAndSubmit() {
+            try {
+                // Fetch movie data
+                var response = await fetch(API_URL);
+                var data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                // Update UI
+                document.querySelector('.message').textContent = 'Sending to CPEE...';
+                
+                // Send full JSON back to CPEE via send.php
+                var jsonString = JSON.stringify(data);
+                var redirectUrl = SEND_URL + "?info=" + encodeURIComponent(jsonString) + "&cb=" + encodeURIComponent(CALLBACK);
+                
+                // Redirect to send.php which will PUT to the callback
+                window.location.href = redirectUrl;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load movie data: ' + error.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('content').innerHTML = 
+                '<div class="error">' +
+                '<h2>⚠️ Something went wrong</h2>' +
+                '<p>' + message + '</p>' +
+                '</div>';
+        }
+    </script>
+</body>
+</html>

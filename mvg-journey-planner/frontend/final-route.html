@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Complete Journey</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .journey-timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .journey-timeline::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(to bottom, #3498db, #9b59b6, #2ecc71);
+            border-radius: 3px;
+        }
+        
+        .journey-stop {
+            position: relative;
+            padding-left: 110px;
+            margin-bottom: 40px;
+        }
+        
+        .stop-icon {
+            position: absolute;
+            left: 12px;
+            width: 62px;
+            height: 62px;
+            background: #1a1a2e;
+            border: 5px solid #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            z-index: 1;
+        }
+        
+        .stop-icon.origin { border-color: #3498db; }
+        .stop-icon.activity { border-color: #2ecc71; }
+        .stop-icon.cinema { border-color: #e74c3c; }
+        .stop-icon.bar { border-color: #9b59b6; }
+        
+        .stop-content {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        
+        .stop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stop-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .stop-time {
+            background: rgba(52,152,219,0.2);
+            color: #3498db;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .stop-address {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        
+        .transit-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .transit-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .transit-line {
+            background: #0065ae;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .transit-direction {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .transit-details {
+            display: flex;
+            gap: 30px;
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, rgba(52,152,219,0.2), rgba(155,89,182,0.2));
+            border: 2px solid rgba(52,152,219,0.3);
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .summary-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #888;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 80px;
+            font-size: 2rem;
+            color: #3498db;
+        }
+        
+        .done-section {
+            text-align: center;
+            margin-top: 50px;
+            padding: 40px;
+            background: rgba(46, 204, 113, 0.1);
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            border-radius: 16px;
+        }
+        
+        .done-title {
+            font-size: 2rem;
+            color: #2ecc71;
+            margin-bottom: 15px;
+        }
+        
+        .done-text {
+            color: #888;
+            font-size: 1.3rem;
+        }
+        
+        .error-box {
+            text-align: center;
+            padding: 60px;
+            color: #e74c3c;
+        }
+        
+        .error-box h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+        
+        .error-box p {
+            color: #888;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🗺️ Your Complete Journey</h1>
+            <p class="subtitle">Here's your plan for the evening</p>
+        </div>
+        
+        <div id="content">
+            <div class="loading">🔄 Building your journey...</div>
+        </div>
+    </div>
+
+    <script>
+        var API_BASE = "https://lehre.bpm.in.tum.de/~ga53muj/qr/google-api.php";
+        
+        // Placeholder values - future: from CPEE data objects
+        var ORIGIN = "Garching Forschungszentrum";
+        var CINEMA = "Mathäser Filmpalast, München";
+        var CINEMA_COORDS = "48.1351,11.5583";
+        
+        // Get URL parameters
+        var params = new URLSearchParams(window.location.search);
+        var movieTime = params.get('time') || '20:00';
+        
+        // Safe JSON parsing for place parameters
+        function parsePlaceParam(paramName) {
+            var raw = params.get(paramName);
+            if (!raw) return null;
+            var decoded = decodeURIComponent(raw);
+            if (!decoded || decoded === '' || decoded === 'none' || decoded === 'null') return null;
+            try {
+                var parsed = JSON.parse(decoded);
+                if (parsed && typeof parsed === 'object' && parsed.name) {
+                    return parsed;
+                }
+                return { name: String(parsed), lat: null, lng: null, address: '' };
+            } catch (e) {
+                return { name: decoded, lat: null, lng: null, address: '' };
+            }
+        }
+
+        var beforePlace = parsePlaceParam('before');
+        var afterPlace = parsePlaceParam('after');
+        
+        // Calculate times
+        var timeParts = movieTime.split(':');
+        var movieHour = parseInt(timeParts[0], 10);
+        var movieMin = parseInt(timeParts[1], 10);
+        var movieEndHour = (movieHour + 2) % 24;
+        var movieEndTime = String(movieEndHour).padStart(2,'0') + ':' + String(movieMin).padStart(2,'0');
+        
+        // Geocode a place name to get coordinates
+        async function geocodePlace(name) {
+            try {
+                var url = API_BASE + '?action=geocode&address=' + encodeURIComponent(name + ', München');
+                var response = await fetch(url);
+                var data = await response.json();
+                if (data.status === 'OK' && data.results && data.results.length > 0) {
+                    var loc = data.results[0].geometry.location;
+                    return { lat: loc.lat, lng: loc.lng, address: data.results[0].formatted_address || '' };
+                }
+            } catch (e) { 
+                console.error('Geocode failed:', name, e); 
+            }
+            return null;
+        }
+
+        // Resolve place coordinates (geocode if missing)
+        async function resolvePlaceCoords(place) {
+            if (!place) return null;
+            if (place.lat && place.lng) return place;
+            var geo = await geocodePlace(place.name);
+            if (geo) {
+                place.lat = geo.lat;
+                place.lng = geo.lng;
+                place.address = place.address || geo.address;
+            }
+            return place;
+        }
+        
+        // Build journey
+        buildJourney();
+        
+        async function buildJourney() {
+            try {
+                // Resolve coordinates for places that need them
+                var resolvedBefore = await resolvePlaceCoords(beforePlace);
+                var resolvedAfter = await resolvePlaceCoords(afterPlace);
+                
+                var stops = [];
+                var totalDuration = 0;
+                var totalLegs = 0;
+                
+                // Stop 1: Origin
+                stops.push({
+                    type: 'origin',
+                    icon: '📍',
+                    name: ORIGIN,
+                    address: 'Your starting point',
+                    time: null
+                });
+                
+                // Determine first destination
+                var firstDest = CINEMA;
+                if (resolvedBefore && resolvedBefore.lat && resolvedBefore.lng) {
+                    firstDest = resolvedBefore.lat + ',' + resolvedBefore.lng;
+                }
+                
+                // Leg 1: Origin to Before-Activity (or Cinema)
+                try {
+                    var route1 = await getRoute(ORIGIN, firstDest);
+                    if (route1) {
+                        stops[0].transit = route1;
+                        totalDuration += route1.duration;
+                        totalLegs++;
+                    }
+                } catch (e) { console.error('Route 1 error:', e); }
+                
+                // Stop 2: Before Activity (if selected)
+                if (resolvedBefore) {
+                    stops.push({
+                        type: 'activity',
+                        icon: '🛒',
+                        name: resolvedBefore.name,
+                        address: resolvedBefore.address || 'Near cinema',
+                        time: 'Before movie',
+                        duration: '~20 min stop'
+                    });
+                    
+                    // Leg 2: Before-Activity to Cinema
+                    if (resolvedBefore.lat && resolvedBefore.lng) {
+                        try {
+                            var route2 = await getRoute(resolvedBefore.lat + ',' + resolvedBefore.lng, CINEMA);
+                            if (route2) {
+                                stops[stops.length - 1].transit = route2;
+                                totalDuration += route2.duration + 20;
+                                totalLegs++;
+                            }
+                        } catch (e) { console.error('Route 2 error:', e); }
+                    }
+                }
+                
+                // Stop 3: Cinema
+                stops.push({
+                    type: 'cinema',
+                    icon: '🎬',
+                    name: 'Mathäser Filmpalast',
+                    address: 'Bayerstraße 5, 80335 München',
+                    time: movieTime,
+                    duration: '~2 hour movie'
+                });
+                
+                // Stop 4: After Activity (if selected)
+                if (resolvedAfter) {
+                    // Leg 3: Cinema to Bar
+                    if (resolvedAfter.lat && resolvedAfter.lng) {
+                        try {
+                            var route3 = await getRoute(CINEMA, resolvedAfter.lat + ',' + resolvedAfter.lng);
+                            if (route3) {
+                                stops[stops.length - 1].transit = route3;
+                                totalDuration += route3.duration;
+                                totalLegs++;
+                            }
+                        } catch (e) { console.error('Route 3 error:', e); }
+                    }
+                    
+                    stops.push({
+                        type: 'bar',
+                        icon: '🍺',
+                        name: resolvedAfter.name,
+                        address: resolvedAfter.address || 'Near cinema',
+                        time: '~' + movieEndTime,
+                        duration: 'Enjoy your evening!'
+                    });
+                }
+                
+                // Render
+                renderJourney(stops, totalDuration, totalLegs);
+                
+            } catch (error) {
+                console.error('Journey build error:', error);
+                document.getElementById('content').innerHTML = 
+                    '<div class="error-box">' +
+                    '<h2>Something went wrong</h2>' +
+                    '<p>Error: ' + error.message + '</p></div>';
+            }
+        }
+        
+        async function getRoute(origin, destination) {
+            var url = API_BASE + '?action=route&origin=' + encodeURIComponent(origin) + '&destination=' + encodeURIComponent(destination);
+            var response = await fetch(url);
+            var data = await response.json();
+            
+            if (data.status !== 'OK' || !data.routes || data.routes.length === 0) {
+                return null;
+            }
+            
+            var leg = data.routes[0].legs[0];
+            var transitStep = null;
+            for (var i = 0; i < leg.steps.length; i++) {
+                if (leg.steps[i].travel_mode === 'TRANSIT') {
+                    transitStep = leg.steps[i];
+                    break;
+                }
+            }
+            
+            return {
+                duration: Math.round(leg.duration.value / 60),
+                durationText: leg.duration.text,
+                line: transitStep && transitStep.transit_details && transitStep.transit_details.line ? transitStep.transit_details.line.short_name : 'Walk',
+                lineColor: transitStep && transitStep.transit_details && transitStep.transit_details.line && transitStep.transit_details.line.color ? transitStep.transit_details.line.color : '#888',
+                headsign: transitStep && transitStep.transit_details ? transitStep.transit_details.headsign : '',
+                stops: transitStep && transitStep.transit_details ? transitStep.transit_details.num_stops : 0
+            };
+        }
+        
+        function renderJourney(stops, totalDuration, totalLegs) {
+            var html = '<div class="journey-timeline">';
+            
+            for (var i = 0; i < stops.length; i++) {
+                var stop = stops[i];
+                html += '<div class="journey-stop">';
+                html += '<div class="stop-icon ' + stop.type + '">' + stop.icon + '</div>';
+                html += '<div class="stop-content">';
+                html += '<div class="stop-header">';
+                html += '<div class="stop-name">' + stop.name + '</div>';
+                if (stop.time) {
+                    html += '<div class="stop-time">' + stop.time + '</div>';
+                }
+                html += '</div>';
+                html += '<div class="stop-address">' + stop.address + '</div>';
+                if (stop.duration) {
+                    html += '<div style="color:#2ecc71; font-size:1.1rem;">' + stop.duration + '</div>';
+                }
+                if (stop.transit) {
+                    html += '<div class="transit-info">';
+                    html += '<div class="transit-header">';
+                    html += '<span style="font-size:1.5rem;">🚇</span>';
+                    html += '<span class="transit-line" style="background:' + stop.transit.lineColor + '">' + stop.transit.line + '</span>';
+                    html += '<span class="transit-direction">→ ' + stop.transit.headsign + '</span>';
+                    html += '</div>';
+                    html += '<div class="transit-details">';
+                    html += '<span>⏱️ ' + stop.transit.durationText + '</span>';
+                    if (stop.transit.stops) {
+                        html += '<span>🚏 ' + stop.transit.stops + ' stops</span>';
+                    }
+                    html += '</div>';
+                    html += '</div>';
+                }
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
+            // Summary
+            html += '<div class="summary-box">';
+            html += '<div class="summary-title">Journey Summary</div>';
+            html += '<div class="summary-stats">';
+            html += '<div class="stat"><div class="stat-value">' + stops.length + '</div><div class="stat-label">Stops</div></div>';
+            html += '<div class="stat"><div class="stat-value">' + totalLegs + '</div><div class="stat-label">Transit Legs</div></div>';
+            html += '<div class="stat"><div class="stat-value">~' + (totalDuration + 120) + '</div><div class="stat-label">Total Minutes</div></div>';
+            html += '</div>';
+            html += '</div>';
+            
+            // Done section
+            html += '<div class="done-section">';
+            html += '<div class="done-title">✅ You\'re all set!</div>';
+            html += '<div class="done-text">Have a great time at the movies!</div>';
+            html += '</div>';
+            
+            document.getElementById('content').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

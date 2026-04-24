@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nearby Places</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .filter-info {
+            background: rgba(46, 204, 113, 0.2);
+            border-radius: 10px;
+            padding: 15px 30px;
+            display: inline-block;
+            color: #2ecc71;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 25px;
+        }
+        
+        .place-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .place-card:hover {
+            border-color: #3498db;
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .place-card.closed {
+            opacity: 0.4;
+            border-color: rgba(231, 76, 60, 0.3);
+        }
+        
+        .place-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .place-name {
+            font-size: 1.6rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .place-rating {
+            background: #f39c12;
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .place-address {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        
+        .place-hours {
+            font-size: 1rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .place-hours.open {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .place-hours.closed {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .scan-text {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #888;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 80px;
+            font-size: 2rem;
+            color: #3498db;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 80px;
+            color: #e74c3c;
+            font-size: 1.5rem;
+        }
+        
+        .no-places {
+            text-align: center;
+            padding: 80px;
+            color: #f39c12;
+            font-size: 1.5rem;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title" id="pageTitle">Nearby Supermarkets</h1>
+            <p class="subtitle" id="pageSubtitle">Pick a place to stop before your movie</p>
+            <div class="filter-info" id="filterInfo">
+                Showing places open before 20:00
+            </div>
+        </div>
+        
+        <div id="content">
+            <div class="loading">Finding nearby places...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://lehre.bpm.in.tum.de/~ga53muj/qr/google-api.php";
+        const SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        const CALLBACK = window.name || "";
+        
+        const CINEMA_COORDS = "48.1351,11.5583";
+        
+        const params = new URLSearchParams(window.location.search);
+        const placeType = params.get('type') || 'supermarket';
+        const movieTime = params.get('time') || '20:00';
+        
+        const titles = {
+            'supermarket': { icon: '🛒', title: 'Nearby Supermarkets', subtitle: 'Grab snacks before the movie' },
+            'restaurant': { icon: '🍽️', title: 'Nearby Restaurants', subtitle: 'Grab a meal before the movie' },
+            'bar': { icon: '🍺', title: 'Nearby Bars', subtitle: 'Drinks after the movie' }
+        };
+        
+        const config = titles[placeType] || titles['supermarket'];
+        document.getElementById('pageTitle').textContent = config.icon + ' ' + config.title;
+        document.getElementById('pageSubtitle').textContent = config.subtitle;
+        
+        const [movieHour, movieMin] = movieTime.split(':').map(Number);
+        let checkHour, checkMin;
+        
+        if (placeType === 'bar') {
+            checkHour = (movieHour + 2) % 24;
+            checkMin = movieMin;
+            document.getElementById('filterInfo').textContent = 'Showing places open after ' + String(checkHour).padStart(2,'0') + ':' + String(checkMin).padStart(2,'0');
+        } else {
+            checkHour = movieHour - 1;
+            checkMin = movieMin - 30;
+            if (checkMin < 0) { checkMin += 60; checkHour -= 1; }
+            if (checkHour < 0) checkHour += 24;
+            document.getElementById('filterInfo').textContent = 'Showing places open at ' + String(checkHour).padStart(2,'0') + ':' + String(checkMin).padStart(2,'0');
+        }
+        
+        loadPlaces();
+        
+        async function loadPlaces() {
+            try {
+                const url = API_BASE + "?action=places&location=" + CINEMA_COORDS + "&type=" + placeType + "&radius=500";
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!data.places || data.places.length === 0) {
+                    document.getElementById('content').innerHTML = '<div class="no-places">No places found nearby</div>';
+                    return;
+                }
+                
+                displayPlaces(data.places, checkHour, checkMin);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('content').innerHTML = '<div class="error">Failed to load places</div>';
+            }
+        }
+        
+        function isOpenAt(place, hour, minute) {
+            if (!place.currentOpeningHours || !place.currentOpeningHours.periods) {
+                return null;
+            }
+            
+            const today = new Date().getDay();
+            
+            for (const period of place.currentOpeningHours.periods) {
+                if (period.open && period.open.day === today) {
+                    const openHour = period.open.hour;
+                    const openMin = period.open.minute || 0;
+                    const closeHour = period.close ? period.close.hour : 23;
+                    const closeMin = period.close ? period.close.minute || 0 : 59;
+                    
+                    const checkTime = hour * 60 + minute;
+                    const openTime = openHour * 60 + openMin;
+                    const closeTime = closeHour * 60 + closeMin;
+                    
+                    if (checkTime >= openTime && checkTime < closeTime) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        function displayPlaces(places, checkHour, checkMin) {
+            const sortedPlaces = places.map(function(place) {
+                return {
+                    displayName: place.displayName,
+                    formattedAddress: place.formattedAddress,
+                    rating: place.rating,
+                    location: place.location,
+                    currentOpeningHours: place.currentOpeningHours,
+                    isOpen: isOpenAt(place, checkHour, checkMin)
+                };
+            }).sort(function(a, b) {
+                if (a.isOpen === b.isOpen) return (b.rating || 0) - (a.rating || 0);
+                if (a.isOpen === true) return -1;
+                if (b.isOpen === true) return 1;
+                return 0;
+            });
+            
+            var html = '<div class="places-grid">';
+            
+            for (var i = 0; i < sortedPlaces.length; i++) {
+                var place = sortedPlaces[i];
+                var name = place.displayName ? place.displayName.text : 'Unknown';
+                var address = place.formattedAddress || '';
+                var rating = place.rating || 'N/A';
+                var isOpen = place.isOpen;
+                
+                var cardClass = isOpen === false ? 'place-card closed' : 'place-card';
+                var hoursClass = isOpen === true ? 'place-hours open' : (isOpen === false ? 'place-hours closed' : 'place-hours');
+                var hoursText = isOpen === true ? 'Open' : (isOpen === false ? 'Closed' : 'Hours unknown');
+                
+                html += '<div class="' + cardClass + '">';
+                html += '<div class="place-header">';
+                html += '<div class="place-name">' + name + '</div>';
+                html += '<div class="place-rating">' + rating + '</div>';
+                html += '</div>';
+                html += '<div class="place-address">' + address + '</div>';
+                html += '<div class="' + hoursClass + '">' + hoursText + '</div>';
+                html += '<div style="text-align: center;">';
+                html += '<div class="qr-container">';
+                html += '<div id="qr-place-' + i + '"></div>';
+                html += '</div>';
+                html += '<div class="scan-text">Scan to select</div>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            document.getElementById('content').innerHTML = html;
+            
+            for (var j = 0; j < sortedPlaces.length; j++) {
+                var p = sortedPlaces[j];
+                var pName = p.displayName ? p.displayName.text : 'Unknown';
+                var pLat = p.location ? p.location.latitude : null;
+                var pLng = p.location ? p.location.longitude : null;
+                var pAddr = p.formattedAddress || '';
+                
+                var placeData = JSON.stringify({
+                    name: pName,
+                    lat: pLat,
+                    lng: pLng,
+                    address: pAddr
+                });
+                
+                var qrData = SEND_URL + "?info=" + encodeURIComponent(placeData) + "&cb=" + encodeURIComponent(CALLBACK);
+                
+                new QRCode(document.getElementById('qr-place-' + j), {
+                    text: qrData,
+                    width: 250,
+                    height: 250,
+                    colorDark: "#1a1a2e",
+                    colorLight: "#ffffff"
+                });
+            }
+        }
+    </script>
+</body>
+</html>

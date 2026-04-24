@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Before the Movie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .option-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #3498db;
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .option-card.snack { border-color: rgba(46, 204, 113, 0.3); }
+        .option-card.snack:hover { border-color: #2ecc71; background: rgba(46,204,113,0.1); }
+        
+        .option-card.meal { border-color: rgba(241, 196, 15, 0.3); }
+        .option-card.meal:hover { border-color: #f1c40f; background: rgba(241,196,15,0.1); }
+        
+        .option-card.skip { border-color: rgba(149, 165, 166, 0.3); }
+        .option-card.skip:hover { border-color: #95a5a6; background: rgba(149,165,166,0.1); }
+        
+        .option-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .option-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .option-desc {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 25px;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        
+        .scan-instruction {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #888;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎬 Before the Movie</h1>
+            <p class="subtitle">Would you like to do something before the show?</p>
+        </div>
+        
+        <div class="options-grid">
+            <div class="option-card snack">
+                <div class="option-icon">🛒</div>
+                <div class="option-title">Grab a Snack</div>
+                <div class="option-desc">Find supermarkets for drinks & snacks</div>
+                <div class="qr-container">
+                    <div id="qr-snack"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            </div>
+            
+            <div class="option-card meal">
+                <div class="option-icon">🍽️</div>
+                <div class="option-title">Grab a Meal</div>
+                <div class="option-desc">Find restaurants near the cinema</div>
+                <div class="qr-container">
+                    <div id="qr-meal"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            </div>
+            
+            <div class="option-card skip">
+                <div class="option-icon">⏭️</div>
+                <div class="option-title">Skip</div>
+                <div class="option-desc">Go straight to the cinema</div>
+                <div class="qr-container">
+                    <div id="qr-skip"></div>
+                </div>
+                <div class="scan-instruction">Scan to select</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        const CALLBACK = window.name || "";
+        
+        const options = [
+            { id: 'qr-snack', value: 'supermarket' },
+            { id: 'qr-meal', value: 'restaurant' },
+            { id: 'qr-skip', value: 'skip' }
+        ];
+        
+        options.forEach(opt => {
+            const qrData = SEND_URL + "?info=" + encodeURIComponent(opt.value) + "&cb=" + encodeURIComponent(CALLBACK);
+            new QRCode(document.getElementById(opt.id), {
+                text: qrData,
+                width: 300,
+                height: 300,
+                colorDark: "#1a1a2e",
+                colorLight: "#ffffff"
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Showtime</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+        }
+        
+        .movie-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 35px 50px;
+            margin-bottom: 40px;
+            display: inline-block;
+            min-width: 400px;
+        }
+        
+        .movie-title {
+            font-size: 2.5rem;
+            color: #f39c12;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .cinema-name {
+            font-size: 1.5rem;
+            color: #3498db;
+        }
+        
+        .duration {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 10px;
+        }
+        
+        .times-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .time-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .time-card:hover {
+            border-color: #e74c3c;
+            background: rgba(231,76,60,0.1);
+        }
+        
+        .time-label {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        
+        .scan-instruction {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #888;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 80px;
+            font-size: 2rem;
+            color: #3498db;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 80px;
+            color: #e74c3c;
+        }
+        
+        .error h2 {
+            font-size: 2rem;
+        }
+        
+        .error p {
+            color: #888;
+            margin-top: 15px;
+            font-size: 1.2rem;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎬 Select Showtime</h1>
+            <p class="subtitle">Scan the QR code for your preferred time</p>
+        </div>
+        
+        <div id="content">
+            <div class="loading">🔄 Loading movie info...</div>
+        </div>
+    </div>
+
+    <script>
+        var API_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/get-selection.php";
+        var SEND_URL = "https://lehre.bpm.in.tum.de/~ga53muj/qr/send.php";
+        var CALLBACK = window.name || "";
+        
+        loadMovieData();
+        
+        async function loadMovieData() {
+            try {
+                var response = await fetch(API_URL);
+                var data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                displayShowtimes(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load movie data');
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('content').innerHTML = 
+                '<div class="error">' +
+                '<h2>⚠️ Something went wrong</h2>' +
+                '<p>' + message + '</p>' +
+                '</div>';
+        }
+        
+        function displayShowtimes(data) {
+            var html = '';
+            
+            // Movie info box
+            html += '<div class="movie-info">';
+            html += '<div class="movie-title">' + data.movie_title + '</div>';
+            html += '<div class="cinema-name">📍 ' + data.cinema + '</div>';
+            html += '<div class="duration">⏱️ ' + data.duration + ' minutes</div>';
+            html += '</div>';
+            
+            // Showtimes grid
+            if (!data.showtimes || data.showtimes.length === 0) {
+                html += '<div class="error"><h2>No showtimes available</h2></div>';
+                document.getElementById('content').innerHTML = html;
+                return;
+            }
+            
+            html += '<div class="times-grid">';
+            
+            for (var i = 0; i < data.showtimes.length; i++) {
+                var time = data.showtimes[i];
+                html += '<div class="time-card">';
+                html += '<div class="time-label">' + time + '</div>';
+                html += '<div class="qr-container">';
+                html += '<div id="qr-time-' + i + '"></div>';
+                html += '</div>';
+                html += '<div class="scan-instruction">Scan to select</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('content').innerHTML = html;
+            
+            // Generate QR codes
+            for (var j = 0; j < data.showtimes.length; j++) {
+                var showtime = data.showtimes[j];
+                
+                // Send only the showtime value
+                var qrData = SEND_URL + "?info=" + encodeURIComponent(showtime) + "&cb=" + encodeURIComponent(CALLBACK);
+                
+                new QRCode(document.getElementById('qr-time-' + j), {
+                    text: qrData,
+                    width: 300,
+                    height: 300,
+                    colorDark: "#1a1a2e",
+                    colorLight: "#ffffff"
+                });
+            }
+        }
+    </script>
+</body>
+</html>
