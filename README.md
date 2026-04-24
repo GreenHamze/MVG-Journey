@@ -1,3 +1,7 @@
+MVG Cinema Journey Planner — CPEE-Orchestrated Activity Planning
+A QR-code-driven journey planner where a CPEE process orchestrates the decision flow, PHP backend scripts proxy Google Maps APIs and relay QR callbacks, and static HTML pages provide the visualization. Users interact entirely through QR codes scanned with their phone — the UI displays on a TV or large monitor, and every choice is a QR scan.
+The system picks up after a colleague's (Alex / ge82bob) cinema and movie selection flow. Alex's system handles movie browsing and cinema selection; this system takes over from there, guiding the user through optional pre-movie activities (supermarkets, restaurants), post-movie activities (bars), and finally rendering a complete MVG transit route with real-time directions.
+
 <img width="2235" height="1317" alt="SelectShowtime" src="https://github.com/user-attachments/assets/ffa1e69d-c868-43c1-a9f4-27afed4d121f" /># MVG Cinema Journey Planner
 
 A QR-code-only journey planning system for Munich movie-goers, built as part of the TUM CPEE Practical Course (Winter Semester 2025). The application is displayed on a TV screen and users interact exclusively by scanning QR codes with their phones — no tapping, no typing.
